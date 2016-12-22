@@ -39,69 +39,6 @@ public class Oauth2Application {
 	}
 
 	@Configuration
-	@EnableResourceServer
-	protected static class ResourceServer extends ResourceServerConfigurerAdapter {
-
-		@Override
-		public void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-					// Just for laughs, apply OAuth protection to only 2 resources
-					.requestMatchers().antMatchers("/","/admin/beans").and()
-					.authorizeRequests()
-					.anyRequest().access("#oauth2.hasScope('read')");
-			// @formatter:on
-		}
-
-		@Override
-		public void configure(ResourceServerSecurityConfigurer resources) throws Exception {
-			resources.resourceId("sparklr");
-		}
-
-	}
-
-	@Configuration
-	@EnableAuthorizationServer
-	protected static class OAuth2Config extends AuthorizationServerConfigurerAdapter {
-
-		@Autowired
-		private AuthenticationManager authenticationManager;
-
-		@Override
-		public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-			endpoints.authenticationManager(authenticationManager);
-		}
-
-		@Override
-		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-			// @formatter:off
-			clients.inMemory()
-					.withClient("my-trusted-client")
-					.authorizedGrantTypes("password", "authorization_code", "refresh_token", "implicit")
-					.authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
-					.scopes("read", "write", "trust")
-					.resourceIds("sparklr")
-					.accessTokenValiditySeconds(60)
-					.and()
-					.withClient("my-client-with-registered-redirect")
-					.authorizedGrantTypes("authorization_code")
-					.authorities("ROLE_CLIENT")
-					.scopes("read", "trust")
-					.resourceIds("sparklr")
-					.redirectUris("http://localhost:8080")
-					.and()
-					.withClient("my-client-with-secret")
-					.authorizedGrantTypes("client_credentials", "password")
-					.authorities("ROLE_CLIENT")
-					.scopes("read")
-					.resourceIds("sparklr")
-					.secret("secret");
-			// @formatter:on
-		}
-
-	}
-
-	@Configuration
 	@EnableWebMvcSecurity
 	protected static class SecurityConfig extends WebSecurityConfigurerAdapter {
 
